@@ -1,5 +1,4 @@
 import streamlit as st
-import sys
 
 from component.navbar import navbar_utils as utl
 from views import home,about
