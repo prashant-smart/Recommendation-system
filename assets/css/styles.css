@@ -1,3 +1,4 @@
+
 .navbar{
     font-family: 'Trebuchet MS', sans-serif;
     position: fixed;
@@ -7,6 +8,9 @@
     left: 0rem;
     top: 0rem;
     height: 55px;
+}
+.fa-2xl{
+    margin: 4rem;
 }
 #logo{
     font-family: cursive;
@@ -105,6 +109,14 @@
 iframe{
     height: 0rem;
 }
-.st-av,.css-1dx1gwv{
-    width: 70%;
+
+#mark_as_fav_onhover,#watch_later_onhover,#rate_it_onhover{
+    display: none;
+}
+#mark_as_fav:hover ~ #mark_as_fav_onhover,#watch_later:hover ~ #watch_later_onhover,#rate_it:hover ~ #rate_it_onhover{
+    display: inline;
+}
+.st-b6,.st-gd{
+    text-align: center;
+    /* width:fit-content */
 }

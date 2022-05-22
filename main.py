@@ -18,3 +18,5 @@ def navigation():
         home.load_view()
         
 navigation()
+
+utl.inject_custom_js()
