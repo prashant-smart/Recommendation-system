@@ -11,6 +11,7 @@ from streamlit_tags import st_tags,st_tags_sidebar
 movies_rating=[]
 movies_dict = pickle.load(open('./assets/data/movies.pkl','rb'))
 movies=pd.DataFrame(movies_dict) 
+isPosterFetch=0
 
 genres_with_movieId=pickle.load(open('./assets/data/genres_rating.pkl','rb'))
 crew_with_movieId=pickle.load(open('./assets/data/crew_rating.pkl','rb'))
@@ -65,7 +66,10 @@ def fetch_poster_and_title(movie_id):
     text_overview=description+"\n\n"+"\n\n"+"Rating : "+str(rating)+"\n\n"+"Release Date : "+str(release_date)
     if isAdult==True:
         text=text+"\n\n"+"DISCLAIMER : This is 18+ Rated movie"
-    poster_path = "https://image.tmdb.org/t/p/w500/" + str(path)
+    if isPosterFetch:
+        poster_path = "https://image.tmdb.org/t/p/w500/" + str(path)
+    else:
+        poster_path='./assets/images/noimage.png'
     return poster_title,poster_path,text_overview,metadata_of_movie
 
 
@@ -236,9 +240,10 @@ def load_view():
     category_opt = st.selectbox('Select Recommendation Type', category)
 
     global slected_opt
+    global option_for_algo_type
+    option_for_algo_type=None
     if category_opt==category[1]:
         # user_input = st.text_input("label goes here",keywords)
-        global option_for_algo_type
         option_for_algo_type = st.selectbox(
         'Select Searchin    g Algorithm',
         ['Content Based (TF-IDF)','Content Based (Bag Of Words)','Item-Item Collaborative Based'])
@@ -283,7 +288,7 @@ def load_view():
             similarity=item_collaborative_sim_mat
         else :
             movies_rating.clear()
-            
+
             slected_opt = st.selectbox(
             'How would you like to be search?',
             movies['title'].values)
@@ -300,14 +305,18 @@ def load_view():
         slected_opt = st.selectbox(
         'How would you like to be search?',
         genres_name)
+
+    global isPosterFetch
+    isPosterFetch = st.checkbox('Do You Want Poster (⚠️ It takes some time to fetch poster )')
+
     
     no_of_movies = st.slider('Number of movies you want Recommended:', min_value=5, max_value=20, step=1)
     if st.button('Search'):
         if category_opt!='--Select--' :
-            if option_for_algo_type=='Item-Item Collaborative Based':
+            if category_opt=='Movie based' and option_for_algo_type=='Item-Item Collaborative Based' :
 
                 if len(movies_rating)<2:
-                   st.warning('Please Select At-least 2 Movies') 
+                   st.warning('Please Select At-least 2 Movies (❗Select movies from sidebar)') 
                 else:
                     generate_cards(slected_opt,no_of_movies,category_opt,option_for_algo_type)
             else:

@@ -9,9 +9,9 @@
     top: 0rem;
     height: 55px;
 }
-.fa-2xl{
+/* .fa-2xl{
     margin: 4rem;
-}
+} */
 #logo{
     font-family: cursive;
     font-weight: 900;
@@ -116,7 +116,17 @@ iframe{
 #mark_as_fav:hover ~ #mark_as_fav_onhover,#watch_later:hover ~ #watch_later_onhover,#rate_it:hover ~ #rate_it_onhover{
     display: inline;
 }
-.st-b6,.st-gd{
-    text-align: center;
-    /* width:fit-content */
+
+.navbar{
+    z-index: 99999999;
+}
+.css-sje4ow,.css-1ot44c6 {
+    
+    top: 4.5rem;
+    z-index: 999999999999;
+}
+
+.css-12oz5g7{
+    /* width: 71rem!important; */
+    max-width:71rem!important;
 }
