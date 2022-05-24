@@ -5,6 +5,7 @@ from views import home,about
 
 
 st.set_page_config(layout="wide", page_title='PMBD')
+
 def navigation():
     utl.inject_custom_css()
     st.set_option('deprecation.showPyplotGlobalUse', False)

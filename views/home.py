@@ -14,8 +14,8 @@ movies=pd.DataFrame(movies_dict)
 isPosterFetch=0
 
 genres_with_movieId=pickle.load(open('./assets/data/genres_rating.pkl','rb'))
-crew_with_movieId=pickle.load(open('./assets/data/crew_rating.pkl','rb'))
-crew_names=pickle.load(open('./assets/data/crew_names.pkl','rb'))
+cast_with_movieId=pickle.load(open('./assets/data/cast_rating.pkl','rb'))
+cast_names=pickle.load(open('./assets/data/cast_names.pkl','rb'))
 genres_name=pickle.load(open('./assets/data/genres_name.pkl','rb'))
 
 tf_idf_sim_mat=pickle.load(open('./assets/data/tf_idf_sim_mat.pkl','rb'))
@@ -35,7 +35,6 @@ def fetch_poster_and_title(movie_id):
     # st.text(url)
 
     res = requests.get(url)
-    # st.text(url)
     data = res.json()
     res.close()
     utube_vid_link='https://youtu.be/'
@@ -63,7 +62,11 @@ def fetch_poster_and_title(movie_id):
                         "description":data['overview'],
                         "release_date":release_date
                         }
-    text_overview=description+"\n\n"+"\n\n"+"Rating : "+str(rating)+"\n\n"+"Release Date : "+str(release_date)
+    genres_string=""
+    for genre in data['genres']:
+        genres_string+=genre['name']+", "
+    genres_string=genres_string[:len(genres_string)-2]
+    text_overview=description+"\n\n"+"Genres : "+genres_string+"\n\n"+"Rating : "+str(rating)+"\n\n"+"Release Date : "+str(release_date)
     if isAdult==True:
         text=text+"\n\n"+"DISCLAIMER : This is 18+ Rated movie"
     if isPosterFetch:
@@ -72,19 +75,46 @@ def fetch_poster_and_title(movie_id):
         poster_path='./assets/images/noimage.png'
     return poster_title,poster_path,text_overview,metadata_of_movie
 
-
-# Function for recommendation of next k movies by crew name
-def recommend_movies_by_crew_name(crew_name,no_of_recommendations):
-    moviesIds_list=crew_with_movieId[crew_name]
-    moviesIds_list=moviesIds_list.sort_values(ascending=False)
+def f7_noHash(seq):
+    seen = set()
+    return [ x for x in seq if str( x ) not in seen and not seen.add( str( x ) )]
+# Function for recommendation of next k movies by cast name
+def recommend_movies_by_cast_name(cast_name,no_of_recommendations):
+    list_of_highest_rating_movies=[]
+    first_movie_id=''
+    first_movie_title=''
+    loader=st.image('./assets/gif/96x96.gif')
+    loding_text=st.text("loading.....")
+    for idx in (cast_with_movieId[cast_name].sort_values(ascending=False)).index:
+        if cast_with_movieId[cast_name][idx]==0.0:
+            for i in movies.index:
+                if(movies['id'][i]==first_movie_id):
+                    first_movie_title=movies['title'][i]
+                    break
+            index=0
+            for idx in movies.index: 
+                if movies['title'][idx]==first_movie_title:
+                    index=idx
+                    break
+            nearest_vectors = sorted(list(enumerate(tf_idf_sim_mat[index])),reverse=True,key = lambda x: x[1])
+            list_of_movies=[]
+            for i in nearest_vectors:
+                list_of_movies.append(movies['id'][i[0]] )
+            list_of_highest_rating_movies+=list_of_highest_rating_movies+list_of_movies[1:]
+            list_of_highest_rating_movies=f7_noHash(list_of_highest_rating_movies)
+            break
+        else:
+            if len(list_of_highest_rating_movies)==0:
+                first_movie_id= idx
+            list_of_highest_rating_movies.append(idx)
+    # st.write(list_of_highest_rating_movies)
+    
     movie_posters=[]
     recommended_movies=[]
     text_strings=[]
 
     counter=0
-    loader=st.image('./assets/gif/96x96.gif')
-    loding_text=st.text("loading.....")
-    for i in moviesIds_list.index:
+    for i in list_of_highest_rating_movies:
         if(counter==no_of_recommendations+1):
             break
         title,path,text,metadata_of_movie=(fetch_poster_and_title(i))
@@ -96,7 +126,7 @@ def recommend_movies_by_crew_name(crew_name,no_of_recommendations):
     loding_text.empty()
     return recommended_movies,movie_posters,text_strings
 
-# Function for recommendation of next k movies by g name
+# Function for recommendation of next k movies by genres name
 def recommend_movies_by_genres_name(genres_name,no_of_recommendations):
     moviesIds_list=genres_with_movieId[genres_name]
     moviesIds_list=moviesIds_list.sort_values(ascending=False)
@@ -218,7 +248,7 @@ def generate_cards(name,no_of_movies,type,algo_type):
     elif type=="genres based":
         movies_Names,movies_Poster,text_strings=recommend_movies_by_genres_name(name,no_of_movies)
     else :
-        movies_Names,movies_Poster,text_strings=recommend_movies_by_crew_name(name,no_of_movies)
+        movies_Names,movies_Poster,text_strings=recommend_movies_by_cast_name(name,no_of_movies)
 
     counter=0
     for i in range(1, no_of_movies+1):
@@ -235,7 +265,7 @@ def helper(this):
     st.text(this)
 def load_view():
     st.title("See what's Next")
-    category = ['--Select--', 'Movie based', 'Person based(Crew Member)','genres based']
+    category = ['--Select--', 'Movie based', 'Person based(cast Member)','genres based']
 
     category_opt = st.selectbox('Select Recommendation Type', category)
 
@@ -299,7 +329,7 @@ def load_view():
         movies_rating.clear()
         slected_opt = st.selectbox(
         'How would you like to be search?',
-        crew_names)
+        cast_names)
     else:
         movies_rating.clear()
         slected_opt = st.selectbox(

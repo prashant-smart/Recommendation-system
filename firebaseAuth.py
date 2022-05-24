@@ -4,6 +4,9 @@ import pyrebase
 import streamlit as st
 from main import navigation
 from localStoragePy import localStoragePy
+
+
+
 localStorage = localStoragePy('pmdb', 'json')
 
 welcome_text_block=st.empty()
@@ -130,4 +133,5 @@ def authenticate():
                 
 
 if __name__ == "__main__":
+    
     authenticate()
