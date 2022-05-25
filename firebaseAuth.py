@@ -1,5 +1,4 @@
 # Modules
-from git import refresh
 import pyrebase
 import streamlit as st
 from main import navigation
@@ -21,6 +20,7 @@ def handle_login_and_logout(username):
         localStorage.removeItem('email')
         localStorage.removeItem('password')
         localStorage.removeItem('username')
+        welcome_text_block.empty()
         logout_block.empty()
         authenticate()
         return 

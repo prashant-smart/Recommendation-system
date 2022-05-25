@@ -5,8 +5,7 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
-from streamlit.components.v1 import html
-from streamlit_tags import st_tags,st_tags_sidebar
+import ast
 
 movies_rating=[]
 movies_dict = pickle.load(open('./assets/data/movies.pkl','rb'))
@@ -22,33 +21,31 @@ tf_idf_sim_mat=pickle.load(open('./assets/data/tf_idf_sim_mat.pkl','rb'))
 bag_of_words_sim_mat=pickle.load(open('./assets/data/bag_of_words_sim_mat.pkl','rb'))
 user_collaborative_sim_mat=pickle.load(open('./assets/data/user-user_collaborative_sim_mat.pkl','rb')).T
 item_collaborative_sim_mat=pickle.load(open('./assets/data/item_item_collaborative_sim_mat.pkl','rb'))
+k_nearest_neighbor_recommendation_with_movies_id=pickle.load(open('./assets/data/movieId_with_recommedations_kNearestNeighbor.pkl','rb'))
+movies_metadata_for_k_nearest_neighbor_recommendation=pickle.load(open('./assets/data/movies_for_kNearestNeighbor.pkl','rb'))
 
 # by default tf_idf_sim_mat is selected as similarity matrix
 
 similarity=tf_idf_sim_mat
 
 
+def daily_facts():
+    limit = 1
+    api_url = 'https://api.api-ninjas.com/v1/facts?limit={}'.format(limit)
+    response = requests.get(api_url, headers={'X-Api-Key': 'mo3xJ0PIXgIZb4Cv2T/QPA==7Y85a7L0BKhjVkb2'})
+    if response.status_code == requests.codes.ok:
+        data=(ast.literal_eval(response.text)[0]['fact']) 
+        return data
+    print(response.text[0])
+    return -1
 
 # Fetch poster from API 
 def fetch_poster_and_title(movie_id):
     url = "https://api.themoviedb.org/3/movie/{}?api_key=b8fda3e150ab7fcabe257624516ee5f3&append_to_response=videos".format(movie_id)
-    # st.text(url)
 
     res = requests.get(url)
     data = res.json()
     res.close()
-    utube_vid_link='https://youtu.be/'
-    is_Utube_vid_Found=0
-    for vid_dict in data['videos']['results']:
-        name_list=vid_dict['name'].split(" ")
-        for elm in name_list:
-            if (elm)=='Trailer' or elm=='Teaser':
-                utube_vid_link+=vid_dict['key']
-                is_Utube_vid_Found=1
-                break
-        if is_Utube_vid_Found==1:
-            break
-    
     poster_title=data['title']
     path = data['poster_path']
     description=data['overview']
@@ -57,7 +54,6 @@ def fetch_poster_and_title(movie_id):
     rating=data['vote_average']
     metadata_of_movie={"genres":data['genres'],
                         "tagline":data['tagline'],
-                        "utube_vid_link":utube_vid_link,
                         "rating":rating,
                         "description":data['overview'],
                         "release_date":release_date
@@ -83,8 +79,15 @@ def recommend_movies_by_cast_name(cast_name,no_of_recommendations):
     list_of_highest_rating_movies=[]
     first_movie_id=''
     first_movie_title=''
-    loader=st.image('./assets/gif/96x96.gif')
-    loding_text=st.text("loading.....")
+    loading_column,daily_fact_column=st.columns([1,3])
+    with loading_column:
+        loader=st.image('./assets/gif/96x96.gif')
+        loding_text=st.text("loading.....")
+    with daily_fact_column:
+        fact_string=daily_facts()
+        daily_fact_container=st.empty()
+        if fact_string!=-1:
+            daily_fact_container.write("FACT :"+"\n\n"+fact_string)
     for idx in (cast_with_movieId[cast_name].sort_values(ascending=False)).index:
         if cast_with_movieId[cast_name][idx]==0.0:
             for i in movies.index:
@@ -124,6 +127,7 @@ def recommend_movies_by_cast_name(cast_name,no_of_recommendations):
         counter=counter+1
     loader.empty()
     loding_text.empty()
+    daily_fact_container.empty()
     return recommended_movies,movie_posters,text_strings
 
 # Function for recommendation of next k movies by genres name
@@ -134,8 +138,15 @@ def recommend_movies_by_genres_name(genres_name,no_of_recommendations):
     recommended_movies=[]
     text_strings=[]
     counter=0
-    loader=st.image('./assets/gif/96x96.gif')
-    loding_text=st.text("loading.....")
+    loading_column,daily_fact_column=st.columns([1,3])
+    with loading_column:
+        loader=st.image('./assets/gif/96x96.gif')
+        loding_text=st.text("loading.....")
+    with daily_fact_column:
+        fact_string=daily_facts()
+        daily_fact_container=st.empty()
+        if fact_string!=-1:
+            daily_fact_container.write("FACT :"+"\n\n"+fact_string)
     for i in moviesIds_list.index:
         if(counter==no_of_recommendations+1):
             break
@@ -146,9 +157,10 @@ def recommend_movies_by_genres_name(genres_name,no_of_recommendations):
         counter=counter+1
     loader.empty()
     loding_text.empty()
+    daily_fact_container.empty()
     return recommended_movies,movie_posters,text_strings
 
-def recommend_movies_by_movie_name_for_collaborative_based_helper(movie,user_rarting):
+def recommend_movies_by_movie_name_for_item_to_item_collaborative_based_helper(movie,user_rarting):
     index=0
     for idx in movies.index: 
         if movies['title'][idx]==movie:
@@ -160,10 +172,10 @@ def recommend_movies_by_movie_name_for_collaborative_based_helper(movie,user_rar
     similar_score=similar_score.sort_values(ascending=False)
     return similar_score
 # Function for recommendation of next k movies by movie name (collaborative based)
-def recommend_movies_by_movie_name_for_collaborative_based(movie_list,no_of_recommendations):
+def recommend_movies_by_movie_name_for_item_to_item_collaborative_based(movie_list,no_of_recommendations):
     similar_movies=pd.DataFrame()
     for elm in movie_list:
-        similar_movies=similar_movies.append(recommend_movies_by_movie_name_for_collaborative_based_helper(elm['name'],elm['rating']),ignore_index=True)
+        similar_movies=similar_movies.append(recommend_movies_by_movie_name_for_item_to_item_collaborative_based_helper(elm['name'],elm['rating']),ignore_index=True)
     similar_movies=similar_movies.sum().sort_values(ascending=False)
     similar_movies=list(similar_movies.index)
     
@@ -171,8 +183,15 @@ def recommend_movies_by_movie_name_for_collaborative_based(movie_list,no_of_reco
     recommended_movies=[]
     text_strings=[]
     counter=0
-    loader=st.image('./assets/gif/96x96.gif')
-    loding_text=st.text("loading.....")
+    loading_column,daily_fact_column=st.columns([1,3])
+    with loading_column:
+        loader=st.image('./assets/gif/96x96.gif')
+        loding_text=st.text("loading.....")
+    with daily_fact_column:
+        fact_string=daily_facts()
+        daily_fact_container=st.empty()
+        if fact_string!=-1:
+            daily_fact_container.write("FACT :"+"\n\n"+fact_string)
     for id in similar_movies:
         if(counter==no_of_recommendations+1):
             break
@@ -183,11 +202,13 @@ def recommend_movies_by_movie_name_for_collaborative_based(movie_list,no_of_reco
         counter=counter+1
     loader.empty()
     loding_text.empty()
+    daily_fact_container.empty()
     return recommended_movies,movie_posters,text_strings
     
 # Function for recommendation of next k movies by movie name (content based)
 def recommend_movies_by_movie_name_for_content_based(movie,no_of_movies):
     index=0
+
     
     for idx in movies.index: 
         if movies['title'][idx]==movie:
@@ -198,8 +219,18 @@ def recommend_movies_by_movie_name_for_content_based(movie,no_of_movies):
     recommended_movies=[]
     movie_posters = []
     text_strings=[]
-    loader=st.image('./assets/gif/96x96.gif')
-    loding_text=st.text("loading.....")
+
+    
+    loading_column,daily_fact_column=st.columns([1,3])
+    with loading_column:
+        loader=st.image('./assets/gif/96x96.gif')
+        loding_text=st.text("loading.....")
+    with daily_fact_column:
+        fact_string=daily_facts()
+        daily_fact_container=st.empty()
+        if fact_string!=-1:
+            daily_fact_container.write("FACT :"+"\n\n"+fact_string)
+   
     counter=0
     for i in nearest_vectors[0:no_of_movies+2]:
         movie_id = movies['id'][i[0]]
@@ -216,9 +247,11 @@ def recommend_movies_by_movie_name_for_content_based(movie,no_of_movies):
     
     loader.empty()
     loding_text.empty()
+    daily_fact_container.empty()
+    daily_fact_container.empty()
 
-    st.title(first_movie_title)
     col1,col2=st.columns([1,1])
+    st.title(first_movie_title)
     with col1:
         st.image(first_movie_path)
     with col2:   
@@ -238,11 +271,75 @@ def recommend_movies_by_movie_name_for_content_based(movie,no_of_movies):
         
     return recommended_movies,movie_posters,text_strings
 
+def recommend_movies_by_movie_name_for_k_Nearest_Neighbor(movie_name,no_of_movies):
+    index_of_movie=0
+    
+    loading_column,daily_fact_column=st.columns([1,3])
+    with loading_column:
+        loader=st.image('./assets/gif/96x96.gif')
+        loding_text=st.text("loading.....")
+    with daily_fact_column:
+        fact_string=daily_facts()
+        daily_fact_container=st.empty()
+        if fact_string!=-1:
+            daily_fact_container.write("FACT :"+"\n\n"+fact_string)
+
+    for idx in movies_metadata_for_k_nearest_neighbor_recommendation.index: 
+        if movies_metadata_for_k_nearest_neighbor_recommendation['title'][idx]==movie_name:
+            index_of_movie=movies_metadata_for_k_nearest_neighbor_recommendation['id'][idx]
+            break
+    list_of_recommended_movies=[]
+    for pairs in k_nearest_neighbor_recommendation_with_movies_id:
+        if pairs[0]==str(index_of_movie):
+            for movie_id in pairs[1]:
+                list_of_recommended_movies.append(movie_id)
+
+    recommended_movies=[]
+    movie_posters = []
+    text_strings=[]
+    counter=0
+    for i in range(0,no_of_movies+1):
+        title,path,text,metadata_of_movie=(fetch_poster_and_title(list_of_recommended_movies[i]))
+        if counter==0:
+            first_movie_title=title
+            first_movie_path=path
+            first_movie_metadata=metadata_of_movie
+            counter+=1
+            continue
+        movie_posters.append(path)
+        recommended_movies.append(title)
+        text_strings.append(text)
+    
+    loader.empty()
+    loding_text.empty()
+    daily_fact_container.empty()
+
+    st.title(first_movie_title)
+    col1,col2=st.columns([1,1])
+    with col1:
+        st.image(first_movie_path)
+    with col2:   
+        st.markdown('<h3>Overview</h3>',unsafe_allow_html=True)
+        st.markdown('<i>{}</i>'.format(first_movie_metadata['tagline']),unsafe_allow_html=True)
+        st.markdown('<p>{}</p>'.format(first_movie_metadata['description']),unsafe_allow_html=True)
+        st.markdown('<b>Rating : </b><span>{}</span>'.format(first_movie_metadata['rating']),unsafe_allow_html=True)
+        st.progress(int(first_movie_metadata['rating']*10))
+        st.markdown('<b>Release Date : </b><span>{}</span>'.format(first_movie_metadata['release_date']),unsafe_allow_html=True)
+        for elm in first_movie_metadata['genres']:
+            st.info(elm['name'])
+
+    st.success('Recommended movies for you')
+        
+    return recommended_movies,movie_posters,text_strings
+
+
+
 def generate_cards(name,no_of_movies,type,algo_type):
     if type=="Movie based":
         if algo_type=='Item-Item Collaborative Based':
-
-            movies_Names,movies_Poster,text_strings=recommend_movies_by_movie_name_for_collaborative_based(movies_rating,no_of_movies)
+            movies_Names,movies_Poster,text_strings=recommend_movies_by_movie_name_for_item_to_item_collaborative_based(movies_rating,no_of_movies)
+        elif algo_type=='K Nearest Neighbor (Item Based)':
+            movies_Names,movies_Poster,text_strings=recommend_movies_by_movie_name_for_k_Nearest_Neighbor(name,no_of_movies)
         else:
              movies_Names,movies_Poster,text_strings=recommend_movies_by_movie_name_for_content_based(name,no_of_movies)
     elif type=="genres based":
@@ -276,7 +373,7 @@ def load_view():
         # user_input = st.text_input("label goes here",keywords)
         option_for_algo_type = st.selectbox(
         'Select Searchin    g Algorithm',
-        ['Content Based (TF-IDF)','Content Based (Bag Of Words)','Item-Item Collaborative Based'])
+        ['Content Based (TF-IDF)','Content Based (Bag Of Words)','Item-Item Collaborative Based','K Nearest Neighbor (Item Based)'])
         
         global similarity
         global movies_rating
@@ -288,7 +385,7 @@ def load_view():
             movies['title'].values)
             movies_rating.clear()
         elif option_for_algo_type=="Item-Item Collaborative Based":
-            movies_selected_by_user=st.sidebar.multiselect(label="Select Your Favorite Movies",options=movies['title'].values)
+            movies_selected_by_user=st.sidebar.multiselect(label="Select Your Favorite Movies",options=movies['title'])
             if len(movies_selected_by_user)==0:
                 movies_rating.clear()
             if len(movies_selected_by_user)!=len(movies_rating):
@@ -316,6 +413,9 @@ def load_view():
                         movies_rating.append({'name':movies_selected_by_user[-1],'rating':rating_by_user})
             st.sidebar.write('Your Favorite Movies:', movies_rating)
             similarity=item_collaborative_sim_mat
+        elif option_for_algo_type=="K Nearest Neighbor (Item Based)":
+            slected_opt=st.selectbox(label="Select Your Favorite Movies",options=set(movies_metadata_for_k_nearest_neighbor_recommendation['title']))
+            movies_rating.clear()
         else :
             movies_rating.clear()
 
