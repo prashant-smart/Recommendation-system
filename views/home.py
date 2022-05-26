@@ -510,7 +510,7 @@ def load_view():
 
         # select box for sleceting algorithm type
         option_for_algo_type = st.selectbox(
-        'Select Searchin    g Algorithm',
+        'Select Searching Algorithm',
         ['Content Based (TF-IDF)','Content Based (Bag Of Words)','Item-Item Collaborative Based','K Nearest Neighbor (Item Based)'])
         
         global similarity
