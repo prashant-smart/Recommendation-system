@@ -1,35 +1,25 @@
-import streamlit as st
-from streamlit.components.v1 import html
+from sys import modules
 
+
+# modules
+import streamlit as st
+
+from streamlit.components.v1 import html
 from .paths_for_navbar import NAVBAR_PATHS
 
-
+# function for injecting css into web page
 def inject_custom_css():
     with open('assets/css/styles.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-    
-       
-          
-  
-  
-def inject_custom_js():
-    # with open("./assets/js/mobiscroll.javascript.min.js",'rb') as f:
-    #     st.markdown(f'<script>{f.read()}</script>', unsafe_allow_html=True)
-    with open("assets/js/script.js") as f:
-        st.markdown(f'<script>{f.read()}</script>', unsafe_allow_html=True)
-    
-    
-
-
-
+# funciton for get current route
 def get_current_route():
     try:
         return st.experimental_get_query_params()['nav'][0]
     except:
         return None
 
-
+# funciton for inject navbar into web page  
 def navbar_component():
 
     navbar_items = ''

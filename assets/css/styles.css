@@ -9,13 +9,10 @@
     top: 0rem;
     height: 55px;
 }
-/* .fa-2xl{
-    margin: 4rem;
-} */
+
 #logo{
     font-family: cursive;
     font-weight: 900;
-    /* top: 0; */
     font-size: x-large;
     position: relative;
     bottom: 10px;
@@ -127,6 +124,5 @@ iframe{
 }
 
 .css-12oz5g7{
-    /* width: 71rem!important; */
     max-width:71rem!important;
 }
