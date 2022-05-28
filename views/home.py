@@ -47,7 +47,6 @@ def daily_facts():
     if response.status_code == requests.codes.ok:
         data=(ast.literal_eval(response.text)[0]['fact']) 
         return data
-    print(response.text[0])
     return -1
 
 # function for fetching trailer
