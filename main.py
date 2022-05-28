@@ -143,8 +143,6 @@ def authenticate():
                     # if user has not enter valid credentials
                     st.error('Please Enter Correct Credentials 🤔!')
 
-    
-
                 
 
 if __name__ == "__main__":

@@ -1,6 +1,4 @@
 # Modules
-from importlib.metadata import metadata
-from math import e
 import streamlit as st
 import pickle
 import pandas as pd
