@@ -359,7 +359,6 @@ def recommend_movies_by_movie_name_for_content_based(movie_name,no_of_movies):
 
     # impliment two columns grid container with ration 1:1
     col1,col2=st.columns([1,1])
-    st.title(first_movie_title)
     with col1:
         # inject first movie image 
         st.image(first_movie_path)
@@ -367,7 +366,8 @@ def recommend_movies_by_movie_name_for_content_based(movie_name,no_of_movies):
     with col2:  
 
         # inject first movie metadata
-        st.markdown('<h3>Overview</h3>',unsafe_allow_html=True)
+        st.title(first_movie_title)
+        st.markdown('<h4>Overview</h4>',unsafe_allow_html=True)
         st.markdown('<i>{}</i>'.format(first_movie_metadata['tagline']),unsafe_allow_html=True)
         st.markdown('<p>{}</p>'.format(first_movie_metadata['description']),unsafe_allow_html=True)
         st.markdown('<b>Rating : </b><span>{}</span>'.format(first_movie_metadata['rating']),unsafe_allow_html=True)

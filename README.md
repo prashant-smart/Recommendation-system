@@ -1,6 +1,8 @@
 # Recommendation System
 Unsupervised Learning Project
 
+<img src="./assets/images/homepage.png">
+
 Data Preprocessing Code : <a href="https://github.com/prashant-smart/recommendation-system-notebook/blob/main/data_preprocessing.ipynb">Data Preprocessing</a>
 
 ### Three Recommendation Type:
@@ -14,6 +16,7 @@ Data Preprocessing Code : <a href="https://github.com/prashant-smart/recommendat
 
 In this, a user can select the number of recommendations they want related to a specific movie selected by the movie name.
 
+<img src="./assets/images/search_result.png">
 
 ### Four Algorithm Type:
 <ul>
@@ -40,6 +43,7 @@ Code: <a href="https://github.com/prashant-smart/recommendation-system-notebook/
 ### Section A.3: Item-Item Collaborative Based
 
 In this algorithm, a user rating for a specific movie is calculated on the basis of how other user rate same movie, and by taking some real time rartings, we can show recommendations to users.
+<img src="./assets/images/item-item collaborative filtering.png">
 
 Code: <a href="https://github.com/prashant-smart/recommendation-system-notebook/blob/main/collaborative_item_to_item_filtering.ipynb">Collaborative Item To Ttem Filtering.ipynb</a>
 
@@ -68,6 +72,8 @@ Code: <a href="https://github.com/prashant-smart/recommendation-system-notebook/
 
 
 # Installation
+
+`cd .\Recommendation-system\`
 
 `pip install -r requirements.txt`
 
