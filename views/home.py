@@ -50,10 +50,32 @@ def daily_facts():
     print(response.text[0])
     return -1
 
+# function for fetching trailer
+def fetch_trailer(movie_name):
+        # finding movie id from movie name
+        movie_id=0
+        for idx in movies.index: 
+            if movies['title'][idx]==movie_name:
+                movie_id=movies['id'][idx]
+                break
+        # tmbd url for get requests
+        url = "https://api.themoviedb.org/3/movie/{}/videos?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US".format(movie_id)
+        data = requests.get(url)    
+        data = data.json()
+        data_list=data['results']
+        key=""
+        for i in data_list:
+            if i['type']=="Trailer":
+                key=i['key']
+        if key=="":
+            return ""
+        trailer ="https://www.youtube.com/watch?v={}".format(key)
+        return trailer
+
 # Fetch metadata of movie from API 
 def fetch_metadata_of_movie(movie_id):
+    # tmbd url for get requests
     url = "https://api.themoviedb.org/3/movie/{}?api_key=b8fda3e150ab7fcabe257624516ee5f3&append_to_response=videos".format(movie_id)
-
     res = requests.get(url)
     data = res.json()
     res.close()
@@ -373,6 +395,7 @@ def recommend_movies_by_movie_name_for_content_based(movie_name,no_of_movies):
         st.markdown('<b>Rating : </b><span>{}</span>'.format(first_movie_metadata['rating']),unsafe_allow_html=True)
         st.progress(int(first_movie_metadata['rating']*10))
         st.markdown('<b>Release Date : </b><span>{}</span>'.format(first_movie_metadata['release_date']),unsafe_allow_html=True)
+        st.write("Click here for [Trailer]({})".format(fetch_trailer(movie_name)))
         for elm in first_movie_metadata['genres']:
             st.info(elm['name'])
 
