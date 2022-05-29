@@ -1,9 +1,30 @@
-# Recommendation System
-Unsupervised Learning Project
+# PMBD.COM
+PMBD is the project based on Machine Learning in whcih i have devloped a web application to demonstrate how various Machine Learning algorithms use for recommendation
+
+
+Demonstrate the use of Recommendation System :
+  1. Helps to Improve the on-site experience by creating dynamic recommendations for different kinds of audiences like Netflix does.
+  2. Helps to categories the product based on their features. Eg: Material, Season, etc.
+
+* Acknowledgement points:-
+  1. This Project is part of Microsoft Engage Program.
+  2. The data fetched is 95% accurate and fetched from the pre available websites such as kaggle.com , movielens.org etc.
+  3. There is no plagirism issue as per design and code, i am sole contributor 
+
+### TECH STACK USED
+* Python
+* Streamlit
+
+
 
 <img src="./assets/images/homepage.png">
 
 Data Preprocessing Code : <a href="https://github.com/prashant-smart/recommendation-system-notebook/blob/main/data_preprocessing.ipynb">Data Preprocessing</a>
+
+First of all you need to **SIGN UP** in the page using ( You can use any username and password for login ):- 
+  
+   <img src="./assets/images/sign_up_page.png">
+
 
 ### Three Recommendation Type:
 <ul>
@@ -86,11 +107,41 @@ Code: <a href="https://github.com/prashant-smart/recommendation-system-notebook/
 
 # Installation
 
-`cd .\Recommendation-system\`
+ Make a folder in your system and clone the project using git bash then open the project in Visual Studio Code or any IDE you prefer.
+
+##### Clone the project 
+  ```
+  git clone https://github.com/prashant-smart/Recommendation-system.git
+
+  ```
+
+  <img src="./assets/images/clone_statment.png">
+
+after cloning the project get into main directory
+
+  `cd .\Recommendation-system\`
+
+  <img src="./assets/images/main_directory.png">
+
+
+ ⚠️ Make sure pip is already installed otherwise check out https://pip.pypa.io/en/stable/installation/
+  
+ ⚠️ Python version sholud be `3.9.12` ( if you want to download `python 3.9.12` then check out https://www.python.org/downloads/ )
+  
+  
+now install all library
 
 `pip install -r requirements.txt`
 
+<img src="./assets/images/Requirements_txt.png">
+
+
+
 # Set Up
 
+To open webapp on your local machine
+
 `streamlit run main.py`
+
+<img src="./assets/images/streamlit_run_command.png">
 

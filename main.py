@@ -1,5 +1,4 @@
 from setup import navigation
-import pandas as pd
 import streamlit as st
 from localStoragePy import localStoragePy
 
@@ -8,6 +7,11 @@ localStorage = localStoragePy('pmdb', 'json')
 
 welcome_text_block=st.empty()
 login_signup_image_block=st.empty()
+
+
+# importing database function 
+
+from database.database_connection import add_userdata,login_user,view_all_users
 
 
 
@@ -32,38 +36,14 @@ def handle_login_and_logout(username):
     navigation()
 
 # Security
+
 #passlib,hashlib,bcrypt,scrypt
 import hashlib
 def make_hashes(password):
 	return hashlib.sha256(str.encode(password)).hexdigest()
 
-def check_hashes(password,hashed_text):
-	if make_hashes(password) == hashed_text:
-		return hashed_text
-	return False
-# DB Management
-import sqlite3 
-conn = sqlite3.connect('data.db')
-c = conn.cursor()
-# DB  Functions
-def create_usertable():
-	c.execute('CREATE TABLE IF NOT EXISTS userstable(username TEXT,password TEXT)')
 
 
-def add_userdata(username,password):
-	c.execute('INSERT INTO userstable(username,password) VALUES (?,?)',(username,password))
-	conn.commit()
-
-def login_user(username,password):
-	c.execute('SELECT * FROM userstable WHERE username =? AND password = ?',(username,password))
-	data = c.fetchall()
-	return data
-
-
-def view_all_users():
-	c.execute('SELECT * FROM userstable')
-	data = c.fetchall()
-	return data
 
 
 def authenticate():
@@ -84,6 +64,7 @@ def authenticate():
 		else:
 			welcome_text_block.title("welcome To PMBD")
 			login_signup_image_block.image('./assets/images/login_signup_page_image.png')
+
 			menu=["Login","SignUp"]
 			choice_block=st.sidebar.empty()
 			choice= choice_block.selectbox("Menu",menu)
@@ -96,11 +77,13 @@ def authenticate():
 				new_password =st.sidebar.text_input("Password",type='password')
 
 				if st.sidebar.button("SignUp"):
-					create_usertable()
-					add_userdata(new_user,make_hashes(new_password))
-					st.balloons()
-					st.success("You have succesfully created valid Account")
-					st.info("Go to Login Menu to login")
+					result=add_userdata(new_user,make_hashes(new_password))
+					if result:
+						st.balloons()
+						st.sidebar.success("You have succesfully created valid Account")
+						st.sidebar.info("Go to Login Menu to login")
+					else:
+						st.sidebar.warning("{} already exists try another username".format(new_user))    
 					
 			if choice == 'Login':
 				title_block=st.sidebar.empty()
@@ -115,13 +98,9 @@ def authenticate():
 						
 				checkbox_block =st.sidebar.empty()
 				if checkbox_block.checkbox("Login"):
-					create_usertable()
-					result=login_user(username,make_hashes(password))
-					if result:
-							st.balloons()
-							user_result=view_all_users()
-							clean_db=pd.DataFrame(user_result,columns=['username','password'])
-
+					user_id=login_user(username,make_hashes(password))
+					if user_id:
+							
 							# saved username and password in localStorage
 							localStorage.setItem('password', password)
 							localStorage.setItem('username', username)
@@ -138,6 +117,7 @@ def authenticate():
 							signup_titl_block.empty()
 							
 							handle_login_and_logout(username)
+							st.balloons()
 
 					else:
 							# if user has not enter valid credentials
