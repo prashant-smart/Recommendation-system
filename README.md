@@ -19,11 +19,17 @@ Demonstrate the use of Recommendation System :
 
 <img src="./assets/images/homepage.png">
 
-Data Preprocessing Code : <a href="https://github.com/prashant-smart/recommendation-system-notebook/blob/main/data_preprocessing.ipynb">Data Preprocessing</a>
 
 First of all you need to **SIGN UP** in the page using ( You can use any username and password for login ):- 
   
    <img src="./assets/images/sign_up_page.png">
+   
+  
+  
+Data Preprocessing Code : <a href="https://github.com/prashant-smart/recommendation-system-notebook/blob/main/data_preprocessing.ipynb">Data Preprocessing</a>
+  
+  
+  
 
 
 ### Three Recommendation Type:
