@@ -132,7 +132,7 @@ after cloning the project get into main directory
 
  ⚠️ Make sure pip is already installed otherwise check out https://pip.pypa.io/en/stable/installation/
   
- ⚠️ Python version sholud be `3.9.12` ( if you want to download `python 3.9.12` then check out https://www.python.org/downloads/ )
+ ⚠️ Python version sholud be `3.9.12` or higher ( if you want to download then check out https://www.python.org/downloads/ )
   
   
 now install all library
